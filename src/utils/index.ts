@@ -1,5 +1,5 @@
 import { genres as mockGenres } from "../mocks/genres";
-import { IGenre, IMovie } from "../types";
+import { ICategory, IGenre, IMovie } from "../types";
 export const getGenreName = (id: number, genres: IGenre[] = mockGenres) =>
   genres
     .filter((genre) => genre.id === id)
@@ -46,3 +46,24 @@ export const filterByCategory = (movie: IMovie, categoryName: string) =>
 
 export const filterByTitle = (movie: IMovie, title: string) =>
   movie.title.toLowerCase().includes(title.trim().toLowerCase());
+
+export function filterMoviesByTitle(searchTerm: string, movies: IMovie[]) {
+  return movies.filter(function (movie: IMovie) {
+    return filterByTitle(movie, searchTerm);
+  });
+}
+
+export function changeCategory(categoryName: string, categories: ICategory[]) {
+  return categories.map((category) => {
+    return {
+      ...category,
+      selected: categoryName === category.name,
+    };
+  });
+}
+export function updateMoviesByCategories(
+  categoryName: string,
+  movies: IMovie[]
+) {
+  return movies.filter((movie) => filterByCategory(movie, categoryName));
+}

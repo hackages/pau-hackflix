@@ -1,45 +1,80 @@
-import React, { SyntheticEvent, useState } from "react";
-import { movies } from "./mocks/movies";
-import { categories } from "./mocks/categories";
-import { IMovie } from "./types";
-import { filterByTitle, filterByCategory } from "./utils";
+import React, { useState, useRef } from "react";
+import { movies as mockMovies } from "./mocks/movies";
+import { categories as mockCategories } from "./mocks/categories";
+import { ICategory, IMovie } from "./types";
+import { updateMoviesByCategories, changeCategory } from "./utils";
 import { Movie } from "./components/Movie";
 import classnames from "classnames";
 
+interface IAppState {
+  movies: IMovie[];
+  categories: ICategory[];
+}
+
+const initialState: IAppState = {
+  movies: mockMovies,
+  categories: mockCategories,
+};
+
 export function App() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [state, updateState] = useState<IAppState>(initialState);
+  const { movies, categories } = state;
+
+  function onCategoriesChanged(categoryName: string) {
+    updateState({
+      movies: updateMoviesByCategories(categoryName, mockMovies),
+      categories: changeCategory(categoryName, categories),
+    });
+  }
+
+  function searchMovies() {
+    const filteredMovies = filterMoviesByTitle(
+      inputRef?.current?.value || "",
+      movies
+    );
+    updateState({ ...state, movies: filteredMovies });
+  }
+
   return (
     <>
       {/* Start: Header Component */}
-      <header class="py-10">
-        <div class="container mx-auto">
-          <div class="sm:flex items-center justify-between">
+      <header className="py-10">
+        <div className="container mx-auto">
+          <div className="sm:flex items-center justify-between">
             <a
               href="/"
-              class="logo lg:w-1/2 sm:w-1/4 w-full block mb-5 sm:mb-0"
+              className="logo lg:w-1/2 sm:w-1/4 w-full block mb-5 sm:mb-0"
             >
               <img
-                class="mx-auto sm:mx-0"
+                className="mx-auto sm:mx-0"
                 src="./image/logo.svg"
                 alt="hackflix"
               />
             </a>
-            <div class="flex justify-center sm:justify-end items-center text-right lg:w-1/2 sm:w-3/4 w-full">
+            <div className="flex justify-center sm:justify-end items-center text-right lg:w-1/2 sm:w-3/4 w-full">
               {/* Start: Search Component */}
-              <form class="flex mr-5 lg:mr-10">
+              <form
+                className="flex mr-5 lg:mr-10"
+                onSubmit={(e: React.FormEvent) => {
+                  e.preventDefault();
+                }}
+              >
                 <input
                   type="text"
                   name="Search"
                   placeholder="Search"
-                  class="search"
-                  onChange={() => {}}
+                  ref={inputRef}
+                  className="search"
+                  onChange={searchMovies}
                 />
-                <button type="submit" class="search-btn">
+                <button type="submit" className="search-btn">
                   <img src="./image/search.svg" alt="search" />
                 </button>
               </form>
               {/* End: Search Component */}
 
-              <div class="nav">
+              <div className="nav">
                 <a href="/bookmarks" className="bookmark-nav py-3 mr-5">
                   Bookmarks
                 </a>
@@ -55,13 +90,16 @@ export function App() {
         <div className="categories">
           <div className="container mx-auto text-center">
             <ul className="flex flex-row justify-center categories-list">
-              {[].map((filter) => {
+              {categories.map((filter) => {
                 const style = classnames({
                   "px-3 md:px-6 py-3 block": true,
                   active: filter.selected,
                 });
                 return (
-                  <li key={filter.name} onClick={() => {}}>
+                  <li
+                    key={filter.name}
+                    onClick={() => onCategoriesChanged(filter.name)}
+                  >
                     <a className={style} href="#">
                       {filter.name}
                     </a>
@@ -77,7 +115,7 @@ export function App() {
         <div className="movie-list py-20">
           <div className="container mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
-              {[].map((movie) => (
+              {movies.map((movie) => (
                 <Movie movie={movie} />
               ))}
             </div>
