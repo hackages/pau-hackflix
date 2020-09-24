@@ -2,7 +2,11 @@ import React, { useState, useRef } from "react";
 import { movies as mockMovies } from "./mocks/movies";
 import { categories as mockCategories } from "./mocks/categories";
 import { ICategory, IMovie } from "./types";
-import { updateMoviesByCategories, changeCategory } from "./utils";
+import {
+  updateMoviesByCategories,
+  changeCategory,
+  filterMoviesByTitle,
+} from "./utils";
 import { Movie } from "./components/Movie";
 import classnames from "classnames";
 
