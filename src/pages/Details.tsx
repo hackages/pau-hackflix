@@ -1,6 +1,6 @@
 import React from "react";
 
-export function MovieDetails() {
+export function MovieDetails(props: { id: string }) {
   return (
     <section className="wrapper">
       <div className="movie-list py-20">

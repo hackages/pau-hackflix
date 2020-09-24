@@ -1,139 +1,42 @@
-import React, { useState, useRef } from "react";
-import { movies as mockMovies } from "./mocks/movies";
-import { categories as mockCategories } from "./mocks/categories";
-import { ICategory, IMovie } from "./types";
+import React, { useState } from "react";
 import {
-  updateMoviesByCategories,
-  changeCategory,
-  filterMoviesByTitle,
-} from "./utils";
-import { Movie } from "./components/Movie";
-import classnames from "classnames";
-
-interface IAppState {
-  movies: IMovie[];
-  categories: ICategory[];
-}
-
-const initialState: IAppState = {
-  movies: mockMovies,
-  categories: mockCategories,
-};
-
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+  RouteComponentProps,
+} from "react-router-dom";
+import { Footer, Header, Search } from "./components";
+import { Bookmarks, Home, MovieDetails } from "./pages";
 export function App() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [state, updateState] = useState<IAppState>(initialState);
-  const { movies, categories } = state;
-
-  function onCategoriesChanged(categoryName: string) {
-    updateState({
-      movies: updateMoviesByCategories(categoryName, mockMovies),
-      categories: changeCategory(categoryName, categories),
-    });
-  }
-
-  function searchMovies() {
-    const filteredMovies = filterMoviesByTitle(
-      inputRef?.current?.value || "",
-      movies
-    );
-    updateState({ ...state, movies: filteredMovies });
-  }
-
+  function searchHandler() {}
   return (
     <>
-      {/* Start: Header Component */}
-      <header className="py-10">
-        <div className="container mx-auto">
-          <div className="sm:flex items-center justify-between">
-            <a
-              href="/"
-              className="logo lg:w-1/2 sm:w-1/4 w-full block mb-5 sm:mb-0"
-            >
-              <img
-                className="mx-auto sm:mx-0"
-                src="./image/logo.svg"
-                alt="hackflix"
-              />
-            </a>
-            <div className="flex justify-center sm:justify-end items-center text-right lg:w-1/2 sm:w-3/4 w-full">
-              {/* Start: Search Component */}
-              <form
-                className="flex mr-5 lg:mr-10"
-                onSubmit={(e: React.FormEvent) => {
-                  e.preventDefault();
-                }}
-              >
-                <input
-                  type="text"
-                  name="Search"
-                  placeholder="Search"
-                  ref={inputRef}
-                  className="search"
-                  onChange={searchMovies}
-                />
-                <button type="submit" className="search-btn">
-                  <img src="./image/search.svg" alt="search" />
-                </button>
-              </form>
-              {/* End: Search Component */}
-
-              <div className="nav">
-                <a href="/bookmarks" className="bookmark-nav py-3 mr-5">
-                  Bookmarks
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      {/* End: Header Component */}
-
-      <section className="wrapper">
-        {/* Start: Filters Component */}
-        <div className="categories">
-          <div className="container mx-auto text-center">
-            <ul className="flex flex-row justify-center categories-list">
-              {categories.map((filter) => {
-                const style = classnames({
-                  "px-3 md:px-6 py-3 block": true,
-                  active: filter.selected,
-                });
-                return (
-                  <li
-                    key={filter.name}
-                    onClick={() => onCategoriesChanged(filter.name)}
-                  >
-                    <a className={style} href="#">
-                      {filter.name}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-        {/* End: Filters Component */}
-
-        {/* Start: MovieList Component */}
-        <div className="movie-list py-20">
-          <div className="container mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
-              {movies.map((movie) => (
-                <Movie movie={movie} />
-              ))}
-            </div>
-          </div>
-        </div>
-        {/* End: MovieList Component */}
-      </section>
-
+      <Router>
+        <Header>
+          <Search searchHandler={searchHandler}></Search>
+        </Header>
+        <Switch>
+          <Redirect from="/" to="/movies"></Redirect>
+          <Route path="/movies" component={Home}></Route>
+          <Route
+            path="/movies/:movieId"
+            render={(props: RouteComponentProps<{ movieId: string }>) => {
+              const movieId = props.match.params.movieId;
+              return <MovieDetails id={movieId}></MovieDetails>;
+            }}
+          ></Route>
+          <Route path="/bookmark">
+            <Bookmarks></Bookmarks>
+          </Route>
+        </Switch>
+      </Router>
       {/* Start: Footer Component */}
-      <footer className="py-6 bg-gray-900">
+      <Footer>
         <div className="container mx-auto text-center">
           <p>Hackflix © 2020 Powered by Hackages</p>
         </div>
-      </footer>
+      </Footer>
       {/* End: Footer Component */}
     </>
   );
