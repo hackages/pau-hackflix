@@ -1,11 +1,11 @@
 import React, { ChangeEvent } from "react";
+import { useDispatch } from "react-redux";
+import { searchAction } from "../store/actions";
 
-type TSearchProps = {
-  searchHandler: (value: string) => void;
-};
-export function Search(props: TSearchProps) {
+export function Search() {
+  const dispatch = useDispatch();
   function onChange(event: ChangeEvent<HTMLInputElement>) {
-    props.searchHandler(event.target.value);
+    dispatch(searchAction(event.target.value));
   }
 
   return (

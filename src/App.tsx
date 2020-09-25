@@ -31,10 +31,6 @@ export function App() {
 
   const { movies, categories } = state;
 
-  function searchMovies(value: string) {
-    updateState({ ...state, movies: filterMoviesByTitle(value, mockMovies) });
-  }
-
   function onCategoriesChanged(categoryName: string) {
     updateState({
       movies: updateMoviesByCategories(categoryName, mockMovies),
@@ -46,20 +42,14 @@ export function App() {
     <>
       <Router>
         <Header>
-          <Search searchHandler={searchMovies}></Search>
+          <Search></Search>
         </Header>
         <Switch>
           <Route
             path="/movies"
             exact={true}
             render={() => {
-              return (
-                <Home
-                  categories={categories}
-                  movies={movies}
-                  onCategoriesChanged={onCategoriesChanged}
-                ></Home>
-              );
+              return <Home onCategoriesChanged={onCategoriesChanged}></Home>;
             }}
           ></Route>
 
