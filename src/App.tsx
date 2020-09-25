@@ -8,17 +8,61 @@ import {
 } from "react-router-dom";
 import { Footer, Header, Search } from "./components";
 import { Bookmarks, Home, MovieDetails } from "./pages";
+import { movies as mockMovies, categories as mockCategories } from "./mocks";
+import { ICategory, IMovie } from "./types";
+import {
+  changeCategory,
+  filterMoviesByTitle,
+  updateMoviesByCategories,
+} from "./utils";
+
+interface IAppState {
+  movies: IMovie[];
+  categories: ICategory[];
+}
+
+const initialState: IAppState = {
+  movies: mockMovies,
+  categories: mockCategories,
+};
+
 export function App() {
-  function searchHandler() {}
+  const [state, updateState] = useState<IAppState>(initialState);
+
+  const { movies, categories } = state;
+
+  function searchMovies(value: string) {
+    updateState({ ...state, movies: filterMoviesByTitle(value, mockMovies) });
+  }
+
+  function onCategoriesChanged(categoryName: string) {
+    updateState({
+      movies: updateMoviesByCategories(categoryName, mockMovies),
+      categories: changeCategory(categoryName, categories),
+    });
+  }
+
   return (
     <>
       <Router>
         <Header>
-          <Search searchHandler={searchHandler}></Search>
+          <Search searchHandler={searchMovies}></Search>
         </Header>
         <Switch>
-          <Redirect from="/" to="/movies"></Redirect>
-          <Route path="/movies" component={Home}></Route>
+          <Route
+            path="/movies"
+            exact={true}
+            render={() => {
+              return (
+                <Home
+                  categories={categories}
+                  movies={movies}
+                  onCategoriesChanged={onCategoriesChanged}
+                ></Home>
+              );
+            }}
+          ></Route>
+
           <Route
             path="/movies/:movieId"
             render={(props: RouteComponentProps<{ movieId: string }>) => {
@@ -29,6 +73,7 @@ export function App() {
           <Route path="/bookmark">
             <Bookmarks></Bookmarks>
           </Route>
+          <Redirect from="/" to="/movies"></Redirect>
         </Switch>
       </Router>
       {/* Start: Footer Component */}
